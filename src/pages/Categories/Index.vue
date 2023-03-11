@@ -1,20 +1,20 @@
 <template>
   <div>
     <div class="category-head row justify-between">
-      <div class="category__title items-center" v-if="categoryTitle.name_uz">
-        {{  categoryTitle.name_uz  }}
+      <div class="category__title items-center" v-if="categoryInfo.name_uz">
+        {{  categoryInfo.name_uz  }}
       </div>
       <q-btn color="primary" class="products__create" @click="openCreateModal" size="12px" label="Create Item" />
     </div>
     <div class="products-wrapper row
-    wrap justify-between">
-      <q-card v-for="category in categoryData" :key="category.id" class="my-card">
+    wrap justify-between" v-if="categoryProductList.length > 0">
+      <q-card v-for="category in categoryProductList" :key="category.id" class="my-card">
         <q-card-section class="bg-primary text-white">
           <div class="text-h6">
             {{category.name_uz}}
           </div>
           <div class="text-subtitle2">
-            {{category.cost}} sum
+            {{category.cost}} $
           </div>
         </q-card-section>
 
@@ -31,6 +31,14 @@
         </q-card-actions>
       </q-card>
 
+    </div>
+    <div v-else class="row column items-center justify-center">
+      <img src="~assets/empty-no-data.svg"
+           style="width: 200px; height: 200px"
+           alt="">
+      <h6>
+        Empty product type
+      </h6>
     </div>
     <q-dialog v-model="isModalOpen" persistent>
       <q-card style="min-width: 350px">
@@ -51,7 +59,7 @@ import FormModal from "components/FormModal.vue";
     components: {FormModal},
     data() {
       return {
-        categoryProductList: [],
+        allProductList: [],
         isModalOpen: false,
         selectedProduct: {
           name_uz: null,
@@ -69,30 +77,31 @@ import FormModal from "components/FormModal.vue";
       }
     },
     created() {
-      this.fetchCategories()
-      console.log(this.categoryTitle)
+      this.fetchCategoriesProducts()
+      console.log(this.categoryInfo)
     },
     computed: {
       ...mapGetters({
         categoriesListGetter: 'category/categoriesListGetter',
-        getCategoryListItemById: "category/getCategoryItemById"
+        getCategoryListItemById: "category/getCategoryItemById",
+        doesCategoryExist: 'category/doesCategoryItemExist'
       }),
-      categoryData: function() {
-        return this.categoryProductList.filter(item => item.product_type_id == this.$route.params.id) || []
+      categoryProductList: function() {
+        return this.allProductList.filter(item => item.product_type_id == this.$route.params.id) || []
       },
-      getCategoryProductItemById() {
+      getCategoryProductItemById: function() {
         return (id) => {
-          const idx = this.categoryProductList.findIndex((item) => item.id == id)
-          return this.categoryProductList[idx]
+          const idx = this.allProductList.findIndex((item) => item.id == id)
+          return this.allProductList[idx]
         }
       },
-      categoryTitle: function () {
+      categoryInfo: function () {
         return this.getCategoryListItemById(this.$route.params.id) || {}
       },
-      doesItemExist() {
-        return (data) => data.some(item=> item.product_type_id == this.$props.id)
-      },
-      formDropdownOptions() {
+      // doesCategoryExist: function () {
+      //   return this.categoriesListGetter.some(item=> item.id == this.$route.params.id)
+      // },
+      formDropdownOptions: function () {
         return this.categoriesListGetter.map(item => ({name_uz: item.name_uz, id: item.id}))
       },
     },
@@ -103,24 +112,27 @@ import FormModal from "components/FormModal.vue";
             .then((res) => {
               if(res.status === 200) {
                 this.cleanSelectedProduct()
-                this.fetchCategories()
+                this.fetchCategoriesProducts()
               }
             })
         } else {
           this.$api.post('/product', data)
             .then((res) => {
-              this.fetchCategories()
+              this.fetchCategoriesProducts()
             })
           }
       },
-      fetchCategories() {
-        console.log(this.$q)
+      fetchCategoriesProducts() {
         this.$api
           .get('/product')
           .then((res)=>{
-            if(this.doesItemExist(res.data) && res.status === 200) {
-              this.categoryProductList = res.data
-              this.categoryData = res.data.filter((item)=> item.product_type_id == this.$props.id)
+            if(res.status === 200) {
+              this.allProductList = res.data
+              if(this.doesCategoryExist(this.$route.params.id)) {
+                this.categoryProductList = res.data.filter((item)=> item.product_type_id == this.$props.id)
+              } else {
+                this.$router.push('/not-found')
+              }
             } else {
               this.$router.push('/not-found')
             }
@@ -134,7 +146,7 @@ import FormModal from "components/FormModal.vue";
         this.$api.delete(`/product/${id}`)
           .then(res=>{
             if(res.status === 200) {
-              this.fetchCategories()
+              this.fetchCategoriesProducts()
             }
           })
       },
@@ -167,8 +179,7 @@ import FormModal from "components/FormModal.vue";
     },
     watch: {
       $route() {
-        if(this.categoryData) {
-          console.log(this.categoriesListGetter)
+        if(this.doesCategoryExist(this.$route.params.id)) {
         } else {
           this.$router.push('/not-found')
         }

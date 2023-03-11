@@ -8,3 +8,9 @@ export function getCategoryItemById(state) {
     return state.categoriesList[idx]
   }
 }
+
+export function doesCategoryItemExist(state) {
+  return (id) => {
+    return state.categoriesList.some(item => item.id == id)
+  }
+}
