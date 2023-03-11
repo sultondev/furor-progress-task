@@ -4,7 +4,6 @@ export async function fetchCategories ({commit}) {
     axios
       .get('/product/get-product-types')
       .then((res)=> {
-        console.log(res)
         if(res.status === 200) {
           commit('setCategories', res.data)
         }
@@ -15,6 +14,4 @@ export async function fetchCategories ({commit}) {
   })
 }
 
-export function print() {
-  console.log("something")
-}
+

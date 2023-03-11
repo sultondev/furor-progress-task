@@ -78,7 +78,6 @@ import FormModal from "components/FormModal.vue";
     },
     created() {
       this.fetchCategoriesProducts()
-      console.log(this.categoryInfo)
     },
     computed: {
       ...mapGetters({

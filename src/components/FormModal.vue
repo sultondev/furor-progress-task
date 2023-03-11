@@ -45,19 +45,12 @@ export default {
     }
   },
   mounted() {
-    console.log('mounted', this.$props.formDefaultData)
     if(this.$props.formDefaultData.name_uz) {
       this.name_uz = this.$props.formDefaultData.name_uz
       this.product_type_id = this.$props.formDefaultData.product_type_id
       this.cost = String(this.$props.formDefaultData.cost)
       this.address = this.$props.formDefaultData.address
       this.id = this.$props.formDefaultData.id
-    }
-  },
-  computed: {
-    formatFormData: function (data) {
-      console.log(data)
-      return (data) => ({...data, product_type_id: data.product_type_id.id})
     }
   },
   methods: {

@@ -1,6 +1,9 @@
-# Quasar App (shopping-store)
+# Shopping-store
 
-A Quasar Project
+Please note that:
+
+- your node js version must be 12.13.0
+- use nvm for node js version control
 
 ## Install the dependencies
 ```bash
@@ -11,7 +14,7 @@ npm install
 
 ### Start the app in development mode (hot-code reloading, error reporting, etc.)
 ```bash
-quasar dev
+quasar dev && npx quasar dev
 ```
 
 
@@ -24,7 +27,7 @@ npm run lint
 
 ### Build the app for production
 ```bash
-quasar build
+quasar build && npx quasar dev
 ```
 
 ### Customize the configuration
